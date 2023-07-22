@@ -26,9 +26,9 @@ defmodule Matreex.Board do
     end
     
     free_x = MapSet.difference MapSet.new(0..board.max_x), used_x
-    new_x = Enum.take_random(free_x, 3)
+    new_x = Enum.take_random(free_x, :rand.uniform(3))
 
-    new_lines = Enum.map new_x, &Line.new(&1, board.max_y)
+    new_lines = Enum.map new_x, &Line.new(&1, trunc(board.max_y * 0.75))
 
     %{board | lines: lines ++ new_lines}
   end
@@ -38,7 +38,12 @@ defmodule Matreex.Board do
       line.content
       |> Stream.with_index
       |> Enum.each(fn {ch, i} ->
-        color = if i == 0 && !line.done, do: Constants.color(:white), else: Constants.color(:green)
+        color = if i == 0 && !line.done do
+          # Bitwise.bor(Constants.color(:white), Constants.attribute(:bold))
+          Constants.color(:white)
+        else
+          Constants.color(:green)
+        end
         
         Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
       end)
