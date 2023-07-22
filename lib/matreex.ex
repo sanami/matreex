@@ -4,28 +4,30 @@ defmodule Matreex do
 
   alias Matreex.Board
 
-  @sleep 40
+  @sleep 50
 
-  def loop(_board, _quit = true), do: :ok
+  def loop(_board, _sleep, _quit = true), do: :ok
 
-  def loop(board, _quit) do
+  def loop(board, sleep, _quit) do
     Termbox.clear()
 
     board = board |> Board.move |> Board.draw
 
-    for {ch, x} <- Enum.with_index(String.to_charlist "(Press <q> to quit) #{length(board.lines)}") do
+    for {ch, x} <- Enum.with_index(String.to_charlist "(Press <q> to quit) #{length(board.lines)} #{sleep}") do
       :ok = Termbox.put_cell(%Cell{position: %Position{x: x, y: board.max_y}, ch: ch})
     end
 
     Termbox.present()
 
-    quit = receive do
-      {:event, %Event{ch: ?q}} -> true
+    {quit, sleep} = receive do
+      {:event, %Event{ch: ?q}} -> {true, sleep}
+      {:event, %Event{ch: ?-}} -> {false, sleep+10}
+      {:event, %Event{ch: ?=}} -> if sleep >= 20, do: {false, sleep-10}, else: {false, sleep}
     after
-      @sleep -> false
+      sleep -> {false, sleep}
     end
 
-    loop(board, quit)
+    loop(board, sleep, quit)
   end
 
   def run do
@@ -37,7 +39,7 @@ defmodule Matreex do
     {:ok, height} = Termbox.height
     board = Board.new(width - 1, height - 1)
     
-    loop(board, false)
+    loop(board, @sleep, false)
 
     :ok = Termbox.shutdown()
   end
