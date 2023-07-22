@@ -1,0 +1,4 @@
+%{
+  "elixir_make": {:hex, :elixir_make, "0.7.7", "7128c60c2476019ed978210c245badf08b03dbec4f24d05790ef791da11aa17c", [:mix], [{:castore, "~> 0.1 or ~> 1.0", [hex: :castore, repo: "hexpm", optional: true]}], "hexpm", "5bc19fff950fad52bbe5f211b12db9ec82c6b34a9647da0c2224b8b8464c7e6c"},
+  "ex_termbox": {:hex, :ex_termbox, "1.0.2", "30cb94c2585e28797bedfc771687623faff75ab0eb77b08b3214181062bfa4af", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "ca7b14d1019f96466a65ba08bd6cbf46e8b16f87339ef0ed211ba0641f304807"},
+}
