@@ -7,7 +7,8 @@ defmodule Matreex.MixProject do
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -23,6 +24,12 @@ defmodule Matreex.MixProject do
   defp deps do
     [
       {:ex_termbox, "~> 1.0"},
+    ]
+  end
+
+  defp aliases do
+    [
+      run: "run_no_halt"
     ]
   end
 end
