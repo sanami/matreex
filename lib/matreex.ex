@@ -4,7 +4,7 @@ defmodule Matreex do
 
   alias Matreex.Board
 
-  @sleep 50
+  @sleep 40
 
   def loop(_board, _sleep, _quit = true), do: :ok
 
@@ -13,9 +13,7 @@ defmodule Matreex do
 
     board = board |> Board.move |> Board.draw
 
-    for {ch, x} <- Enum.with_index(String.to_charlist "(Press <q> to quit) #{length(board.lines)} #{sleep}") do
-      :ok = Termbox.put_cell(%Cell{position: %Position{x: x, y: board.max_y}, ch: ch})
-    end
+    print 0, board.max_y, "(Press <q> to quit) #{length(board.lines)} #{sleep}"
 
     Termbox.present()
 
@@ -28,6 +26,15 @@ defmodule Matreex do
     end
 
     loop(board, sleep, quit)
+  end
+
+  def print(x, y, str) when is_binary(str) do
+    str
+    |> String.to_charlist
+    |> Stream.with_index
+    |> Enum.each(fn {ch, xx} ->
+      Termbox.put_cell(%Cell{position: %Position{x: x+xx, y: y}, ch: ch})
+    end)
   end
 
   def run do
