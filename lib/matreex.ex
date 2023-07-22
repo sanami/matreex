@@ -1,31 +1,71 @@
 defmodule Matreex do
+  use GenServer, restart: :temporary
+
   alias ExTermbox.Bindings, as: Termbox
   alias ExTermbox.{Cell, EventManager, Event, Position}
-
   alias Matreex.Board
 
+  @me __MODULE__
   @sleep 40
 
-  def loop(_board, _sleep, _quit = true), do: :ok
+  def start_link(_) do
+    GenServer.start_link(@me, [], name: @me)
+  end
 
-  def loop(board, sleep, _quit) do
+  @impl true
+  def init(_init_arg) do
+    :ok = Termbox.init()
+
+    {:ok, _pid} = EventManager.start_link()
+    :ok = EventManager.subscribe(self())
+
+    {:ok, width} = Termbox.width
+    {:ok, height} = Termbox.height
+    board = Board.new(width - 1, height - 1)
+    state = %{board: board, sleep: @sleep, quit: false}
+
+    Process.send_after(@me, :loop, 0)
+    
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info(:loop, state) do
+    new_state = loop(state)
+    Process.send_after(@me, :loop, new_state.sleep)
+
+    {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_info({:event, %Event{ch: ?-}}, state) do
+    {:noreply, %{state | sleep: state.sleep + 10}}
+  end
+
+  @impl true
+  def handle_info({:event, %Event{ch: ?=}}, %{sleep: sleep} = state) do
+    sleep = if sleep >= 20, do: sleep - 10, else: sleep
+    {:noreply, %{state | sleep: sleep}}
+  end
+
+  @impl true
+  def handle_info({:event, %Event{ch: ?q}}, state) do
+    :ok = Termbox.shutdown()
+    System.stop(0)
+    {:stop, :normal, state}
+  end
+
+  @impl true
+  def handle_info({:event, ev}, state), do: {:noreply, state}
+
+  # Internal
+  def loop(state) do
     Termbox.clear()
-
-    board = board |> Board.move |> Board.draw
-
-    print 0, board.max_y, "(Press <q> to quit) #{length(board.lines)} #{sleep}"
-
+    board = state.board |> Board.move |> Board.draw
+    print 0, board.max_y, "(Press <q> to quit) #{state.sleep} #{length(board.lines)}"
     Termbox.present()
 
-    {quit, sleep} = receive do
-      {:event, %Event{ch: ?q}} -> {true, sleep}
-      {:event, %Event{ch: ?-}} -> {false, sleep+10}
-      {:event, %Event{ch: ?=}} -> if sleep >= 20, do: {false, sleep-10}, else: {false, sleep}
-    after
-      sleep -> {false, sleep}
-    end
-
-    loop(board, sleep, quit)
+    %{state | board: board}
   end
 
   def print(x, y, str) when is_binary(str) do
@@ -35,19 +75,5 @@ defmodule Matreex do
     |> Enum.each(fn {ch, xx} ->
       Termbox.put_cell(%Cell{position: %Position{x: x+xx, y: y}, ch: ch})
     end)
-  end
-
-  def run do
-    :ok = Termbox.init()
-    {:ok, _pid} = EventManager.start_link()
-    :ok = EventManager.subscribe(self())
-
-    {:ok, width} = Termbox.width
-    {:ok, height} = Termbox.height
-    board = Board.new(width - 1, height - 1)
-    
-    loop(board, @sleep, false)
-
-    :ok = Termbox.shutdown()
   end
 end
