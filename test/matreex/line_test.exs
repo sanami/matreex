@@ -6,8 +6,9 @@ defmodule Matreex.LineTest do
   test "new" do
     res = Line.new(11, 33)
     pp res
-    %{content: [], x: 11, y: 0, current_length: 0, length: length} = res
+    %{content: [], x: 11, y: y, current_length: 0, length: length} = res
     assert length > 0
+    assert y in [0, -1]
   end
 
   test "move" do

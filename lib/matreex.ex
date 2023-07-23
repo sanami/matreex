@@ -22,7 +22,11 @@ defmodule Matreex do
     {:ok, width} = Termbox.width
     {:ok, height} = Termbox.height
     board = Board.new(width - 1, height - 1)
-    state = %{board: board, sleep: @sleep, quit: false}
+    state = %{
+      board: board,
+      sleep: @sleep,
+      add_count: div(width, height) + 1 
+    }
 
     Process.send_after(@me, :loop, 0)
     
@@ -38,14 +42,8 @@ defmodule Matreex do
   end
 
   @impl true
-  def handle_info({:event, %Event{ch: ?-}}, state) do
-    {:noreply, %{state | sleep: state.sleep + 10}}
-  end
-
-  @impl true
-  def handle_info({:event, %Event{ch: ?=}}, %{sleep: sleep} = state) do
-    sleep = if sleep >= 20, do: sleep - 10, else: sleep
-    {:noreply, %{state | sleep: sleep}}
+  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?-, ?=, ?+] do
+    {:noreply, change_sleep(state, ch == ?-)}
   end
 
   @impl true
@@ -56,16 +54,32 @@ defmodule Matreex do
   end
 
   @impl true
-  def handle_info({:event, ev}, state), do: {:noreply, state}
+  def handle_info({:event, %Event{ch: ch}}, state) when ch in ?1..?9 do
+    add_count = String.to_integer <<ch>>
+    {:noreply, %{state | add_count: add_count}}
+  end
+
+  @impl true
+  def handle_info({:event, _ev}, state), do: {:noreply, state}
 
   # Internal
   def loop(state) do
     Termbox.clear()
-    board = state.board |> Board.move |> Board.draw
-    print 0, board.max_y, "(Press <q> to quit) #{state.sleep} #{length(board.lines)}"
+    board = state.board |> Board.move(state.add_count) |> Board.draw
+    print 0, board.max_y, "(Press <q> to quit) #{state.add_count} #{state.sleep} #{length(board.lines)}"
     Termbox.present()
 
     %{state | board: board}
+  end
+
+  def change_sleep(%{sleep: sleep} = state, inc) do
+    sleep = cond do
+      inc -> sleep + 10
+      sleep >= 10 -> sleep - 10
+      true -> sleep
+    end
+
+    %{state | sleep: sleep}
   end
 
   def print(x, y, str) when is_binary(str) do

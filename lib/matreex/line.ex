@@ -4,7 +4,7 @@ defmodule Matreex.Line do
   defstruct content: [], x: 0, y: 0, current_length: 0, length: 0, done: false
 
   def new(x, max_length) do
-    %Matreex.Line{content: [], x: x, y: 0, current_length: 0, length: :rand.uniform(max_length)+3}
+    %Matreex.Line{content: [], x: x, y: -1, current_length: 0, length: :rand.uniform(max_length)+3}
   end
 
   def move(line, max_y) when line.y == max_y do

@@ -11,7 +11,7 @@ defmodule Matreex.Board do
     %Matreex.Board{lines: [], max_x: max_x, max_y: max_y}
   end
 
-  def move(board) do
+  def move(board, add_count) do
     lines =
       board.lines
       |> Enum.map(&Line.move(&1, board.max_y))
@@ -26,7 +26,7 @@ defmodule Matreex.Board do
     end
     
     free_x = MapSet.difference MapSet.new(0..board.max_x), used_x
-    new_x = Enum.take_random(free_x, :rand.uniform(3))
+    new_x = Enum.take_random(free_x, :rand.uniform(add_count))
 
     new_lines = Enum.map new_x, &Line.new(&1, trunc(board.max_y * 0.75))
 
