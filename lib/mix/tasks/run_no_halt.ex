@@ -3,6 +3,6 @@ defmodule Mix.Tasks.RunNoHalt do
 
   @shortdoc "Runs the application without halting"
   def run(args) do
-    Mix.Task.run("run", [ "--no-halt" | args ])
+    Mix.Task.run("run", ["--no-halt" | args])
   end
 end

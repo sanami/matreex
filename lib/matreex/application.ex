@@ -7,9 +7,13 @@ defmodule Matreex.Application do
 
   @impl true
   def start(_type, _args) do
-    children = if Mix.env() == :test, do: [], else: [
-      Matreex
-    ]
+    children = if Application.get_env(:matreex, :start_app, true) do
+      [
+        Matreex
+      ]
+    else
+      []
+    end
 
     opts = [strategy: :one_for_one, name: Matreex.Supervisor]
     Supervisor.start_link(children, opts)
