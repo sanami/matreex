@@ -25,7 +25,8 @@ defmodule Matreex do
     state = %{
       board: board,
       sleep: @sleep,
-      add_count: div(width, height) + 1 
+      add_count: div(width, height) + 1,
+      pause: false
     }
 
     Process.send_after(@me, :loop, 0)
@@ -42,11 +43,16 @@ defmodule Matreex do
   end
 
   @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?q, ?й] do
+  def handle_info({:event, %Event{ch: ch}}, state) when ch == ?q do
     :ok = Termbox.shutdown()
-#    System.stop(0)
+    # System.stop(0)
     System.halt(0)
     {:stop, :normal, state}
+  end
+
+  @impl true
+  def handle_info({:event, %Event{key: key}}, state) when key == ?\s do
+    {:noreply, %{state | pause: !state.pause}}
   end
 
   @impl true
@@ -66,7 +72,10 @@ defmodule Matreex do
   # Internal
   def loop(state) do
     Termbox.clear()
-    board = state.board |> Board.move(state.add_count) |> Board.draw
+
+    board = if state.pause, do: state.board, else: Board.move(state.board, state.add_count)
+    Board.draw(board)
+
     print 0, board.max_y, "(Press <q> to quit) #{state.add_count} #{state.sleep} #{length(board.lines)}"
     Termbox.present()
 
