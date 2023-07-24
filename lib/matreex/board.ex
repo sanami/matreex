@@ -33,19 +33,24 @@ defmodule Matreex.Board do
     %{board | lines: lines ++ new_lines}
   end
 
-  def draw(board) do
+  def draw(board, coloring \\ false) do
     Enum.each board.lines, fn line ->
       line.content
       |> Stream.with_index
-      |> Enum.each(fn {ch, i} ->
-        color = if i == 0 && !line.done do
-          # Bitwise.bor(Constants.color(:white), Constants.attribute(:bold))
-          Constants.color(:white)
-        else
-          Constants.color(:green)
-        end
-        
-        Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
+      |> Enum.each(fn
+        {{ch, color}, i} when coloring ->
+          Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
+        {ch, i} ->
+          color = if i == 0 && !line.done do
+            # Bitwise.bor(Constants.color(:white), Constants.attribute(:bold))
+            Constants.color(:white)
+          else
+            Constants.color(:green)
+          end
+
+          ch = if is_tuple(ch), do: elem(ch, 0), else: ch
+
+          Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
       end)
     end
 

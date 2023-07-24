@@ -1,10 +1,15 @@
 defmodule Matreex.Line do
+  alias ExTermbox.Constants
+
   {:ok, modules} = :application.get_key(:elixir, :modules)
   @words Enum.map(modules, &inspect(&1))
 
+  @green Constants.color(:green)
+  @bold_green Bitwise.bor(Constants.color(:green), Constants.attribute(:bold))
+
   @enforce_keys [:x, :length]
 
-  defstruct content: [], word: [], x: 0, y: 0, current_length: 0, length: 0, done: false
+  defstruct content: [], word: [], x: 0, y: 0, current_length: 0, length: 0, done: false, color: @green
 
   def new(x, max_length) do
     length = :rand.uniform(max_length) + 3
@@ -39,6 +44,13 @@ defmodule Matreex.Line do
 #  end
 
   def add_char(line) do
+    color = if line.word == [] do
+      # :rand.uniform(8)
+      if line.color == @green, do: @bold_green, else: @green
+    else
+      line.color
+    end
+
     word = if line.word == [] do
       @words |> Enum.take_random(1) |> hd |> Kernel.<>(" ") |> String.to_charlist
     else
@@ -46,9 +58,9 @@ defmodule Matreex.Line do
     end
 
     [ch | word] = word
-    content = [ch | line.content]
+    content = [{ch, color} | line.content]
 
-    %{line | content: content, word: word}
+    %{line | content: content, word: word, color: color}
   end
 
   def random_char, do: 32 + :rand.uniform(127-33)

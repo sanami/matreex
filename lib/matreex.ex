@@ -26,7 +26,8 @@ defmodule Matreex do
       board: board,
       sleep: @sleep,
       add_count: div(width, height) + 1,
-      pause: false
+      pause: false,
+      coloring: true
     }
 
     Process.send_after(@me, :loop, 0)
@@ -56,6 +57,11 @@ defmodule Matreex do
   end
 
   @impl true
+  def handle_info({:event, %Event{ch: ch}}, state) when ch == ?c do
+    {:noreply, %{state | coloring: !state.coloring}}
+  end
+
+  @impl true
   def handle_info({:event, %Event{ch: ch}}, state) when ch in [?-, ?=, ?+] do
     {:noreply, change_sleep(state, ch == ?-)}
   end
@@ -74,7 +80,7 @@ defmodule Matreex do
     Termbox.clear()
 
     board = if state.pause, do: state.board, else: Board.move(state.board, state.add_count)
-    Board.draw(board)
+    Board.draw(board, state.coloring)
 
     print 0, board.max_y, "(Press <q> to quit) #{state.add_count} #{state.sleep} #{length(board.lines)}"
     Termbox.present()
