@@ -16,19 +16,19 @@ defmodule Matreex.Line do
     %Matreex.Line{content: [], word: [], x: x, y: -1, current_length: 0, length: length}
   end
 
-  def move(line, max_y) when line.y == max_y do
+  def move(line, max_y, _words) when line.y == max_y do
     content = List.delete_at(line.content, -1)
     %{line | content: content, done: true}
   end
 
-  def move(line, _max_y) when line.current_length == line.length do
-    line = add_char(line)
+  def move(line, _max_y, words) when line.current_length == line.length do
+    line = add_char(line, words)
     content = List.delete_at(line.content, -1)
     %{line | content: content, y: line.y + 1}
   end
 
-  def move(line, _max_y) do
-    line = add_char(line)
+  def move(line, _max_y, words) do
+    line = add_char(line, words)
     %{line | current_length: line.current_length + 1, y: line.y + 1}
   end
 
@@ -36,14 +36,12 @@ defmodule Matreex.Line do
     (line.current_length == line.length) and (line.y - line.length > 3)
   end
 
-#  def add_char(line) do
-#    ch = random_char()
-#    content = [ch | line.content]
-#
-#    %{line | content: content}
-#  end
+  def add_char(line, _words = false) do
+    content = [random_char() | line.content]
+    %{line | content: content}
+  end
 
-  def add_char(line) do
+  def add_char(line, _words = true) do
     color = if line.word == [] do
       # :rand.uniform(8)
       if line.color == @green, do: @bold_green, else: @green

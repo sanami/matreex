@@ -11,10 +11,10 @@ defmodule Matreex.Board do
     %Matreex.Board{lines: [], max_x: max_x, max_y: max_y}
   end
 
-  def move(board, add_count) do
+  def move(board, add_count, words \\ true) do
     lines =
       board.lines
-      |> Enum.map(&Line.move(&1, board.max_y))
+      |> Enum.map(&Line.move(&1, board.max_y, words))
       |> Enum.reject(& &1.content == [])
 
     used_x = Enum.reduce lines, MapSet.new, fn line, used_x ->
