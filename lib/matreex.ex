@@ -42,15 +42,16 @@ defmodule Matreex do
   end
 
   @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?-, ?=, ?+] do
-    {:noreply, change_sleep(state, ch == ?-)}
+  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?q, ?й] do
+    :ok = Termbox.shutdown()
+#    System.stop(0)
+    System.halt(0)
+    {:stop, :normal, state}
   end
 
   @impl true
-  def handle_info({:event, %Event{ch: ?q}}, state) do
-    :ok = Termbox.shutdown()
-    System.stop(0)
-    {:stop, :normal, state}
+  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?-, ?=, ?+] do
+    {:noreply, change_sleep(state, ch == ?-)}
   end
 
   @impl true
