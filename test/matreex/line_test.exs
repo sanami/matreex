@@ -20,6 +20,14 @@ defmodule Matreex.LineTest do
     end
   end
 
+  test "add_char" do
+    line1 = Line.new(0, 9)
+    line1 = Line.add_char(line1)
+    pp line1
+    assert length(line1.word) > 0
+    assert length(line1.content) > 0
+  end
+
   test "random_char" do
     res = Line.random_char()
     assert res > 32
