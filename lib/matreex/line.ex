@@ -37,8 +37,14 @@ defmodule Matreex.Line do
   end
 
   def add_char(line, _words = false) do
-    content = [random_char() | line.content]
-    %{line | content: content}
+    color = if :rand.uniform(4) == 1 do
+      if line.color == @green, do: @bold_green, else: @green
+    else
+      line.color
+    end
+    content = [{random_char(), color} | line.content]
+
+    %{line | content: content, color: color}
   end
 
   def add_char(line, _words = true) do

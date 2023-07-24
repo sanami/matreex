@@ -33,12 +33,12 @@ defmodule Matreex.Board do
     %{board | lines: lines ++ new_lines}
   end
 
-  def draw(board, coloring \\ false) do
+  def draw(board, bold \\ false) do
     Enum.each board.lines, fn line ->
       line.content
       |> Stream.with_index
       |> Enum.each(fn
-        {{ch, color}, i} when coloring ->
+        {{ch, color}, i} when bold ->
           Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
         {ch, i} ->
           color = if i == 0 && !line.done do
