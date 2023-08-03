@@ -53,35 +53,29 @@ defmodule Matreex do
   end
 
   @impl true
-  def handle_info({:event, %Event{key: key}}, state) when key == ?\s do
-    {:noreply, %{state | pause: !state.pause}}
+  def handle_info({:event, ev}, state) do
+    {:noreply, process_key(ev, state)}
   end
-
-  @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch == ?b do
-    {:noreply, %{state | bold: !state.bold}}
-  end
-
-  @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch == ?w do
-    {:noreply, %{state | words: !state.words}}
-  end
-
-  @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch in [?-, ?=, ?+] do
-    {:noreply, change_sleep(state, ch == ?-)}
-  end
-
-  @impl true
-  def handle_info({:event, %Event{ch: ch}}, state) when ch in ?1..?9 do
-    add_count = String.to_integer <<ch>>
-    {:noreply, %{state | add_count: add_count}}
-  end
-
-  @impl true
-  def handle_info({:event, _ev}, state), do: {:noreply, state}
 
   # Internal
+  def process_key(%Event{ch: ch, key: key}, state) do
+    cond do
+      key == ?\s ->
+        %{state | pause: !state.pause}
+      ch == ?b ->
+        %{state | bold: !state.bold}
+      ch == ?w ->
+        %{state | words: !state.words}
+      ch in [?-, ?=, ?+] ->
+        change_sleep(state, ch == ?-)
+      ch in ?1..?9 ->
+        add_count = String.to_integer <<ch>>
+        %{state | add_count: add_count}
+      true ->
+        state
+    end
+  end
+
   def loop(state) do
     Termbox.clear()
 
