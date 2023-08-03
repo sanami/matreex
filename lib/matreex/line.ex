@@ -12,11 +12,12 @@ defmodule Matreex.Line do
   defstruct content: [], word: [], x: 0, y: 0, speed: 1.0, current_length: 0, length: 0, done: false, color: @green
 
   def new(x, max_length) do
+    color = [@green, @bold_green] |> Enum.take_random(1) |> hd()
     length = :rand.uniform(max_length) + 3
     # speed = 1
     speed = 0.5 + :rand.uniform / 2
 
-    %Matreex.Line{content: [], word: [], x: x, y: -1, speed: speed, current_length: 0, length: length}
+    %Matreex.Line{content: [], word: [], x: x, y: -1, speed: speed, current_length: 0, length: length, color: color}
   end
 
   def move(line, max_y, words) do
@@ -30,7 +31,7 @@ defmodule Matreex.Line do
     end
   end
 
-  def update(line, max_y, _words) when line.y >= max_y do
+  def update(line, max_y, _words) when line.y >= (max_y + 1) do
     content = List.delete_at(line.content, -1)
     %{line | content: content, done: true, y: line.y - 1}
   end

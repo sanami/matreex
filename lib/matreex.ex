@@ -25,7 +25,7 @@ defmodule Matreex do
     state = %{
       board: board,
       sleep: @sleep,
-      add_count: div(width, height) + 1,
+      add_count: 1, # div(width, height) + 1,
       pause: false,
       bold: true,
       words: true
