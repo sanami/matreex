@@ -39,7 +39,7 @@ defmodule Matreex.Board do
       |> Stream.with_index
       |> Enum.each(fn
         {{ch, color}, i} when bold ->
-          Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
+          Termbox.put_cell(%Cell{position: %Position{x: trunc(line.x), y: trunc(line.y - i)}, ch: ch, fg: color})
         {ch, i} ->
           color = if i == 0 && !line.done do
             # Bitwise.bor(Constants.color(:white), Constants.attribute(:bold))
@@ -50,7 +50,7 @@ defmodule Matreex.Board do
 
           ch = if is_tuple(ch), do: elem(ch, 0), else: ch
 
-          Termbox.put_cell(%Cell{position: %Position{x: line.x, y: line.y - i}, ch: ch, fg: color})
+          Termbox.put_cell(%Cell{position: %Position{x: trunc(line.x), y: trunc(line.y - i)}, ch: ch, fg: color})
       end)
     end
 

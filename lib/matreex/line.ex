@@ -9,31 +9,45 @@ defmodule Matreex.Line do
 
   @enforce_keys [:x, :length]
 
-  defstruct content: [], word: [], x: 0, y: 0, current_length: 0, length: 0, done: false, color: @green
+  defstruct content: [], word: [], x: 0, y: 0, speed: 1.0, current_length: 0, length: 0, done: false, color: @green
 
   def new(x, max_length) do
     length = :rand.uniform(max_length) + 3
-    %Matreex.Line{content: [], word: [], x: x, y: -1, current_length: 0, length: length}
+    # speed = 1
+    speed = 0.5 + :rand.uniform / 2
+
+    %Matreex.Line{content: [], word: [], x: x, y: -1, speed: speed, current_length: 0, length: length}
   end
 
-  def move(line, max_y, _words) when line.y == max_y do
+  def move(line, max_y, words) do
+    old_y = line.y
+    line = %{line | y: line.y + line.speed}
+
+    if trunc(line.y) > trunc(old_y) do
+      update(line, max_y, words)
+    else
+      line
+    end
+  end
+
+  def update(line, max_y, _words) when line.y >= max_y do
     content = List.delete_at(line.content, -1)
-    %{line | content: content, done: true}
+    %{line | content: content, done: true, y: line.y - 1}
   end
 
-  def move(line, _max_y, words) when line.current_length == line.length do
+  def update(line, _max_y, words) when line.current_length == line.length do
     line = add_char(line, words)
     content = List.delete_at(line.content, -1)
-    %{line | content: content, y: line.y + 1}
+    %{line | content: content}
   end
 
-  def move(line, _max_y, words) do
+  def update(line, _max_y, words) do
     line = add_char(line, words)
-    %{line | current_length: line.current_length + 1, y: line.y + 1}
+    %{line | current_length: line.current_length + 1}
   end
 
   def done?(line) do
-    (line.current_length == line.length) and (line.y - line.length > 3)
+    (line.current_length == line.length) and (line.y - line.length > 10)
   end
 
   def add_char(line, _words = false) do
