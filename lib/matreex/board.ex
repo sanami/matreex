@@ -1,8 +1,5 @@
 defmodule Matreex.Board do
-  alias ExTermbox.Bindings, as: Termbox
-  alias ExTermbox.{Cell, Position, Constants}
-
-  alias Matreex.Line
+  alias Matreex.{Line, Render}
 
   @enforce_keys [:max_x, :max_y]
   defstruct lines: [], max_x: 0, max_y: 0
@@ -39,18 +36,18 @@ defmodule Matreex.Board do
       |> Stream.with_index
       |> Enum.each(fn
         {{ch, color}, i} when bold ->
-          Termbox.put_cell(%Cell{position: %Position{x: trunc(line.x), y: trunc(line.y - i)}, ch: ch, fg: color})
+          Render.draw_char(trunc(line.x), trunc(line.y - i), ch, color)
+
         {ch, i} ->
           color = if i == 0 && !line.done do
-            # Bitwise.bor(Constants.color(:white), Constants.attribute(:bold))
-            Constants.color(:white)
+            :white
           else
-            Constants.color(:green)
+            :green
           end
 
           ch = if is_tuple(ch), do: elem(ch, 0), else: ch
 
-          Termbox.put_cell(%Cell{position: %Position{x: trunc(line.x), y: trunc(line.y - i)}, ch: ch, fg: color})
+          Render.draw_char(trunc(line.x), trunc(line.y - i), ch, color)
       end)
     end
 
