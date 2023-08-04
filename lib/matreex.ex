@@ -2,8 +2,8 @@ defmodule Matreex do
   use GenServer, restart: :temporary
 
   alias ExTermbox.Bindings, as: Termbox
-  alias ExTermbox.{Cell, EventManager, Event, Position}
-  alias Matreex.Board
+  alias ExTermbox.{EventManager, Event}
+  alias Matreex.{Board, Render}
 
   @me __MODULE__
   @sleep 40
@@ -82,7 +82,11 @@ defmodule Matreex do
     board = if state.pause, do: state.board, else: Board.move(state.board, state.add_count, state.words)
     Board.draw(board, state.bold)
 
-    print 0, board.max_y, "(Press <q> to quit) #{state.add_count} #{state.sleep} #{length(board.lines)}"
+    Render.print(0, board.max_y, "Quit")
+    Render.print(5, board.max_y, "Words", state.words)
+    Render.print(11, board.max_y, "Bold", state.bold)
+    Render.print(16, board.max_y, "#{state.add_count}", true)
+    Render.print(18, board.max_y, "-#{state.sleep}+ #{length(board.lines)}")
     Termbox.present()
 
     %{state | board: board}
@@ -96,14 +100,5 @@ defmodule Matreex do
     end
 
     %{state | sleep: sleep}
-  end
-
-  def print(x, y, str) when is_binary(str) do
-    str
-    |> String.to_charlist
-    |> Stream.with_index
-    |> Enum.each(fn {ch, xx} ->
-      Termbox.put_cell(%Cell{position: %Position{x: x+xx, y: y}, ch: ch})
-    end)
   end
 end

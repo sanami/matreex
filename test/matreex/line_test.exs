@@ -14,7 +14,7 @@ defmodule Matreex.LineTest do
   test "move" do
     line1 = Line.new(0, 9)
     Enum.reduce 1..20, line1, fn _, line1 ->
-      line1 = Line.move(line1, 10)
+      line1 = Line.move(line1, 10, true)
       pp line1
       line1
     end
@@ -22,7 +22,7 @@ defmodule Matreex.LineTest do
 
   test "add_char" do
     line1 = Line.new(0, 9)
-    line1 = Line.add_char(line1)
+    line1 = Line.add_char(line1, true)
     pp line1
     assert length(line1.word) > 0
     assert length(line1.content) > 0

@@ -26,7 +26,7 @@ defmodule Matreex.Line do
     end
   end
 
-  def update(line, max_y, _words) when line.y > max_y + 1 do
+  def update(line, max_y, _words) when trunc(line.y) > max_y do
     content = List.delete_at(line.content, -1)
     %{line | content: content, done: true, y: line.y - 1}
   end
