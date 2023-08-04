@@ -46,27 +46,19 @@ defmodule Matreex.Line do
     (line.current_length == line.length) and (line.y - line.length > 10)
   end
 
-  def add_char(line, _words = false) do
-    color = if :rand.uniform(4) == 1 do
-      if line.color == :green, do: :bold_green, else: :green
-    else
-      line.color
-    end
-    content = [{random_char(), color} | line.content]
-
-    %{line | content: content, color: color}
-  end
-
-  def add_char(line, _words = true) do
+  def add_char(line, words) do
     color = if line.word == [] do
-      # :rand.uniform(8)
       if line.color == :green, do: :bold_green, else: :green
     else
       line.color
     end
 
     word = if line.word == [] do
-      @words |> Enum.take_random(1) |> hd |> Kernel.<>(" ") |> String.to_charlist
+      if words do
+        @words |> Enum.take_random(1) |> hd |> Kernel.<>(" ") |> String.to_charlist
+      else
+        for _i <- 1..:rand.uniform(10), do: random_char()
+      end
     else
       line.word
     end

@@ -30,7 +30,7 @@ defmodule Matreex.Board do
     %{board | lines: lines ++ new_lines}
   end
 
-  def draw(board, bold \\ false) do
+  def draw(board, bold) do
     Enum.each board.lines, fn line ->
       line.content
       |> Stream.with_index
@@ -38,15 +38,8 @@ defmodule Matreex.Board do
         {{ch, color}, i} when bold ->
           Render.draw_char(trunc(line.x), trunc(line.y - i), ch, color)
 
-        {ch, i} ->
-          color = if i == 0 && !line.done do
-            :white
-          else
-            :green
-          end
-
-          ch = if is_tuple(ch), do: elem(ch, 0), else: ch
-
+        {{ch, _color}, i} ->
+          color = if i == 0 && !line.done, do: :white, else: :green
           Render.draw_char(trunc(line.x), trunc(line.y - i), ch, color)
       end)
     end
